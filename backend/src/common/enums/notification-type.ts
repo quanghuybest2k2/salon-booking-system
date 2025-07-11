@@ -1,0 +1,5 @@
+export enum NotificationType {
+  CONFIRMATION = 'CONFIRMATION',
+  CANCELLATION = 'CANCELLATION',
+  REMINDER = 'REMINDER',
+}
