@@ -2,9 +2,9 @@
   "name": "backend",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "quanghuybest2k2",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -19,12 +19,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:create": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create src/migrations/NewMigration -d src/config/data-source.ts",
-    "migration:generate": "npm run build && npx typeorm migration:generate src/migrations/AutoMigration -d dist/config/data-source.js",
-    "migration:run": "npm run build && npx typeorm migration:run -d dist/config/data-source.js",
-    "migration:revert": "npm run build && npx typeorm migration:revert -d dist/config/data-source.js",
-    "seed": "npm run build && node dist/seeder/seeder.js"
+    "migration:generate": "yarn build && npx typeorm migration:generate src/migrations/AutoMigration -d dist/config/data-source.js",
+    "migration:run": "yarn build && npx typeorm migration:run -d dist/config/data-source.js",
+    "migration:revert": "yarn build && npx typeorm migration:revert -d dist/config/data-source.js",
+    "seed": "yarn build && node dist/seeder/seeder.js"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",

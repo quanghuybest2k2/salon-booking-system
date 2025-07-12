@@ -7,13 +7,13 @@ Mở với Git Bash 1
 ```
 
 ```bash
-cd backend && npm run start:dev
+cd backend && yarn migration:generate && yarn migration:run && yarn seed && yarn start:dev
 ```
 
 Mở với Git Bash 2:
 
 ```bash
-cd frontend && npm start
+cd frontend && yarn start
 ```
 
 # Hệ Thống Đặt Lịch Salon

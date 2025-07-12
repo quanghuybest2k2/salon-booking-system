@@ -38,7 +38,7 @@ export class AppointmentSeeder implements Seeder {
       for (let i = 0; i < 5; i++) {
         const customer = faker.helpers.arrayElement(customers);
         const service = faker.helpers.arrayElement(services);
-        const startTime = faker.date.soon(7);
+        const startTime = faker.date.soon({ days: 7 });
         const endTime = new Date(
           startTime.getTime() + service.duration_minutes * 60 * 1000,
         );
