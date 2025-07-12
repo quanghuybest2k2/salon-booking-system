@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import envConfig from './config/env.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,8 +32,8 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(swaggerPath, app, documentFactory);
 
-  const domain = process.env.DOMAIN ?? 'localhost';
-  const port = process.env.PORT ?? 3000;
+  const domain = envConfig.DOMAIN;
+  const port = envConfig.PORT;
   await app.listen(port);
 
   console.log(`🚀 Server is running on http://${domain}:${port}`);
@@ -40,4 +41,4 @@ async function bootstrap() {
     `📚 Swagger docs available at http://${domain}:${port}/${swaggerPath}`,
   );
 }
-bootstrap();
+void bootstrap();

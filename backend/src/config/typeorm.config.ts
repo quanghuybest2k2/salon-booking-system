@@ -1,12 +1,14 @@
 import { DataSourceOptions } from 'typeorm';
+import envConfig from './env.config';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'mysql',
-  host: process.env.DB_HOST ?? 'localhost',
-  port: +(process.env.DB_PORT ?? 3306),
-  username: process.env.DB_USERNAME ?? 'root',
-  password: process.env.DB_PASSWORD ?? '',
-  database: process.env.DB_DATABASE ?? 'nest_db',
+  host: envConfig.DB_HOST,
+  port: envConfig.DB_PORT,
+  username: envConfig.DB_USERNAME,
+  password: envConfig.DB_PASSWORD,
+  database: envConfig.DB_DATABASE,
+  charset: 'utf8mb4',
   synchronize: false,
   logging: true,
   entities: [__dirname + '/../entities/**/*.entity.{ts,js}'], // .ts for development, .js for production

@@ -16,19 +16,11 @@
             "type": "node",
             "request": "launch",
             "name": "Debug NestJS",
-            "args": [
-                "${workspaceFolder}/backend/src/main.ts"
-            ],
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register",
-                "-r",
-                "tsconfig-paths/register"
-            ],
-            "sourceMaps": true,
-            "cwd": "${workspaceRoot}",
-            "protocol": "inspector"
+            "program": "${workspaceFolder}/backend/dist/main.js",
+            "cwd": "${workspaceFolder}/backend",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
         }
     ]
 }

@@ -1,11 +1,19 @@
 # Cài đặt
 
-Tạo `.env` từ `.env.example` cho cả frontend và backend
-
-Mở với Git Bash
+Mở với Git Bash 1
 
 ```bash
 ./install_package_local.sh
+```
+
+```bash
+cd backend && npm run start:dev
+```
+
+Mở với Git Bash 2:
+
+```bash
+cd frontend && npm start
 ```
 
 # Hệ Thống Đặt Lịch Salon

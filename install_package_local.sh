@@ -1,3 +1,3 @@
 #!/bin/bash
-cd frontend && npm install && cd ..
-cd backend && npm install && cd ..
+cd frontend && cp .env.example .env && npm install && cd ..
+cd backend && cp .env.example .env && npm install && cd ..
