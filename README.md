@@ -16,6 +16,10 @@ Mở với Git Bash 2:
 cd frontend && yarn start
 ```
 
+## Chạy dự án với Docker
+
+Bạn cũng có thể chạy dự án bằng Docker. Xem hướng dẫn chi tiết [tại đây](./run-with-docker.md).
+
 # Hệ Thống Đặt Lịch Salon
 
 ## Mô tả dự án
