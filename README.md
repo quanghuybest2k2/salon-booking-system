@@ -6,15 +6,28 @@ Mở với Git Bash 1
 ./install_package_local.sh
 ```
 
+_Chạy migration & tạo dữ liệu ảo_
+
 ```bash
-cd backend && npm run start:dev
+cd backend && yarn migration:generate && yarn migration:run && yarn seed
+```
+
+_Start server_
+
+```bash
+yarn start:dev
 ```
 
 Mở với Git Bash 2:
+_Start server_
 
 ```bash
-cd frontend && npm start
+cd frontend && yarn start
 ```
+
+## Chạy dự án với Docker
+
+Bạn cũng có thể chạy dự án bằng Docker. Xem hướng dẫn chi tiết [tại đây](./run-with-docker.md).
 
 # Hệ Thống Đặt Lịch Salon
 

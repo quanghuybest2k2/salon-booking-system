@@ -1,10 +1,10 @@
-import { ConfigService } from '@nestjs/config';
 import { MailService } from './mail.interface';
 import * as sgMail from '@sendgrid/mail';
+import envConfig from 'src/config/env.config';
 
 export class SendGridMailAdapter implements MailService {
-  constructor(private readonly configService: ConfigService) {
-    sgMail.setApiKey(this.configService.get<string>('SENDGRID_API_KEY') ?? '');
+  constructor() {
+    sgMail.setApiKey(envConfig.MAIL.SENDGRID_API_KEY);
   }
 
   async sendMail(to: string, subject: string, content: string): Promise<void> {

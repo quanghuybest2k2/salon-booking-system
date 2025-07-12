@@ -3,11 +3,11 @@ import envConfig from './env.config';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'mysql',
-  host: envConfig.DB_HOST,
-  port: envConfig.DB_PORT,
-  username: envConfig.DB_USERNAME,
-  password: envConfig.DB_PASSWORD,
-  database: envConfig.DB_DATABASE,
+  host: envConfig.DATABASE.DB_HOST,
+  port: envConfig.DATABASE.DB_PORT,
+  username: envConfig.DATABASE.DB_USERNAME,
+  password: envConfig.DATABASE.DB_PASSWORD,
+  database: envConfig.DATABASE.DB_DATABASE,
   charset: 'utf8mb4',
   synchronize: false,
   logging: true,

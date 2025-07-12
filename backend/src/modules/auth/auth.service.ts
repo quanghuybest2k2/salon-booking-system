@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import envConfig from 'src/config/env.config';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../entities/user/user.entity';
 import { RegisterRequestDto } from './dto/register.request.dto';
@@ -11,36 +11,23 @@ export class AuthService {
   constructor(
     private authRepository: AuthRepository,
     private jwtService: JwtService,
-    private configService: ConfigService,
   ) {}
 
-  private async generateAccessToken(
-    email: string,
-    userId: number,
-  ): Promise<string> {
+  private generateAccessToken(email: string, userId: number): string {
     const payload = { email, sub: userId };
-    return await this.jwtService.sign(payload);
+    return this.jwtService.sign(payload);
   }
 
-  private async generateRefreshToken(
-    email: string,
-    userId: number,
-  ): Promise<string> {
+  private generateRefreshToken(email: string, userId: number): string {
     const payload = { email, sub: userId, type: 'refresh' };
-    return await this.jwtService.sign(payload, {
-      secret:
-        (await this.configService.get<string>('JWT_REFRESH_SECRET')) ??
-        'JWT_REFRESH_SECRET is not defined',
-      expiresIn: await this.configService.get<string>(
-        'REFRESH_TOKEN_EXPIRES_IN',
-      ),
+    return this.jwtService.sign(payload, {
+      secret: envConfig.JWT.JWT_REFRESH_SECRET ?? '',
+      expiresIn: envConfig.JWT.REFRESH_TOKEN_EXPIRES_IN ?? '7d',
     });
   }
 
   private getRefreshTokenExpiryDate(): Date {
-    const expiresInConfig =
-      this.configService.get<string>('REFRESH_TOKEN_EXPIRES_IN') || '7d';
-
+    const expiresInConfig = envConfig.JWT.REFRESH_TOKEN_EXPIRES_IN ?? '7d';
     // Parse expiry time (support formats like '7d', '24h', '30m', etc.)
     const match = expiresInConfig.match(/^(\d+)([dhm])$/);
     if (!match) {
@@ -87,7 +74,7 @@ export class AuthService {
     const savedUser = await this.authRepository.save(user);
 
     // Generate refresh token
-    const refreshToken = await this.generateRefreshToken(
+    const refreshToken = this.generateRefreshToken(
       savedUser.email,
       savedUser.id,
     );
@@ -113,8 +100,8 @@ export class AuthService {
   }
 
   async login(user: User) {
-    const accessToken = await this.generateAccessToken(user.email, user.id);
-    const refreshToken = await this.generateRefreshToken(user.email, user.id);
+    const accessToken = this.generateAccessToken(user.email, user.id);
+    const refreshToken = this.generateRefreshToken(user.email, user.id);
     const refreshTokenExpiry = this.getRefreshTokenExpiryDate();
 
     await this.authRepository.update(user.id, {
@@ -138,7 +125,7 @@ export class AuthService {
     try {
       // Verify JWT token
       const payload = await this.jwtService.verify(refreshToken, {
-        secret: await this.configService.get<string>('JWT_REFRESH_SECRET'),
+        secret: envConfig.JWT.JWT_REFRESH_SECRET,
       });
 
       if (payload.type !== 'refresh') {
@@ -161,15 +148,8 @@ export class AuthService {
         throw new UnauthorizedException('Refresh token has expired');
       }
 
-      // Generate new tokens
-      const newAccessToken = await this.generateAccessToken(
-        user.email,
-        user.id,
-      );
-      const newRefreshToken = await this.generateRefreshToken(
-        user.email,
-        user.id,
-      );
+      const newAccessToken = this.generateAccessToken(user.email, user.id);
+      const newRefreshToken = this.generateRefreshToken(user.email, user.id);
       const newRefreshTokenExpiry = this.getRefreshTokenExpiryDate();
 
       // Update database with new refresh token and expiry

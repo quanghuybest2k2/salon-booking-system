@@ -34,7 +34,9 @@ export class ServiceSeeder implements Seeder {
             name: faker.commerce.productName(),
             description: faker.lorem.sentence(),
             duration_minutes: faker.number.int({ min: 30, max: 120 }),
-            price: parseFloat(faker.commerce.price(50000, 500000, 0)),
+            price: parseFloat(
+              faker.commerce.price({ min: 50000, max: 500000, dec: 0 }),
+            ),
           });
         }
       }

@@ -1,25 +1,25 @@
 import { MailService } from './mail.interface';
 import * as nodemailer from 'nodemailer';
-import { ConfigService } from '@nestjs/config';
+import envConfig from 'src/config/env.config';
 
 export class SMTPMailAdapter implements MailService {
   private transporter;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor() {
     this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: this.configService.get<number>('MAIL_PORT'),
+      host: envConfig.MAIL.MAIL_HOST,
+      port: envConfig.MAIL.MAIL_PORT,
       secure: false,
       auth: {
-        user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASSWORD'),
+        user: envConfig.MAIL.MAIL_USER,
+        pass: envConfig.MAIL.MAIL_PASSWORD,
       },
     });
   }
 
   async sendMail(to: string, subject: string, content: string): Promise<void> {
     await this.transporter.sendMail({
-      from: `"No Reply" <${this.configService.get<string>('SMTP_USER')}>`,
+      from: `"No Reply" <${envConfig.MAIL.MAIL_USER}>`,
       to,
       subject,
       text: content,

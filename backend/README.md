@@ -5,44 +5,44 @@
 ## Project setup
 
 ```bash
-$ npm install
+$ yarn
 ```
 
 ## Compile and run the project
 
 ```bash
 # development
-$ npm run start
+$ yarn start
 
 # watch mode
-$ npm run start:dev
+$ yarn start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn start:prod
 ```
 
 ## Run migrations & seed
 
 ```bash
 # generate migration
-$ npm run migration:generate
+$ yarn migration:generate
 
 # run migration
-$ npm run migration:run
+$ yarn migration:run
 
 # run seed
-$ npm run seed
+$ yarn seed
 ```
 
 ## Run tests
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # e2e tests
-$ npm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
