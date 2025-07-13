@@ -1,0 +1,101 @@
+version: '3.8'
+name: salon-booking-system
+
+services:
+  db:
+    container_name: mysql
+    image: mysql:8.3.0
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: salon_booking_system
+      MYSQL_USER: huy
+      MYSQL_PASSWORD: huy
+      MYSQL_ROOT_PASSWORD: huy
+    volumes:
+      - mysql_data_local:/var/lib/mysql
+    networks:
+      - main_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.local
+    ports:
+      - 8080:8080
+    volumes:
+      - ./backend:/app
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      # App config
+      DOMAIN: ${DOMAIN}
+      PORT: ${PORT}
+      # JWT config
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      ACCESS_TOKEN_EXPIRES_IN: ${ACCESS_TOKEN_EXPIRES_IN}
+      REFRESH_TOKEN_EXPIRES_IN: ${REFRESH_TOKEN_EXPIRES_IN}
+      # Database config
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      # Google mail config
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      # Sendgrid mail config
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+    networks:
+      - main_net
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+    depends_on:
+      - backend
+    networks:
+      - main_net
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 82:80
+    links:
+      - db:db
+    depends_on:
+      - db
+    environment:
+      MYSQL_USER: huy
+      MYSQL_PASSWORD: huy
+      MYSQL_ROOT_PASSWORD: huy
+    networks:
+      - main_net
+
+volumes:
+  mysql_data_local:
+
+networks:
+  main_net:

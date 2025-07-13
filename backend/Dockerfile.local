@@ -1,0 +1,17 @@
+FROM ubuntu:24.10
+
+RUN apt update && apt -y install curl nano cron && apt clean
+
+WORKDIR /app
+
+# Install Node.js 22.x (latest from NodeSource 22.x series)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
+RUN npm install -g yarn
+# check version
+RUN node -v && yarn -v
+
+COPY migration.sh ./migration.sh
+RUN chmod +x ./migration.sh
+
+CMD ["tail", "-f", "/dev/null"]
