@@ -7,7 +7,6 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { AppointmentRepository } from './appointment.repository';
 import { Appointment } from 'src/entities/appointment/appointment.entity';
-import { LessThan, MoreThan, Not } from 'typeorm';
 import * as dayjs from 'dayjs';
 import * as customParseFormat from 'dayjs/plugin/customParseFormat';
 import * as isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -141,18 +140,14 @@ export class AppointmentService {
     end_time: Date,
     appointmentIdToExclude?: number, // to exclude current appointment from conflict check
   ): Promise<void> {
-    const conflict = await this.appointmentRepo.findOneWithOptions({
-      where: {
-        provider_id,
-        start_time: LessThan(end_time),
-        end_time: MoreThan(start_time),
-        ...(appointmentIdToExclude && {
-          id: Not(appointmentIdToExclude),
-        }),
-      },
-    });
+    const hasConflict = await this.appointmentRepo.hasTimeConflict(
+      provider_id,
+      start_time,
+      end_time,
+      appointmentIdToExclude,
+    );
 
-    if (conflict) {
+    if (hasConflict) {
       throw new BadRequestException(
         'Thời gian này đã được đặt bởi một cuộc hẹn khác.',
       );
