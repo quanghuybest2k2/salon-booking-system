@@ -8,6 +8,7 @@ import {
   Put,
   Res,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AppointmentService } from './appointment.service';
@@ -19,10 +20,11 @@ import {
   ApiParam,
   ApiBody,
   ApiResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ResponseHandler } from 'src/utils/ResponseHandler';
 import { RoleRequired } from 'src/common/decorators/roles.decorator';
-import { UserRole } from 'src/common/enums';
+import { SortField, SortOrder, UserRole } from 'src/common/enums';
 
 @ApiTags('appointments')
 @Controller('appointments')
@@ -52,11 +54,29 @@ export class AppointmentController {
   @Get()
   @ApiBearerAuth()
   @RoleRequired([UserRole.ADMIN, UserRole.PROVIDER])
-  async findAll(@Res() res: Response): Promise<Response> {
-    const result = await this.appointmentService.findAll();
+  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
+  @ApiQuery({ name: 'pageSize', type: Number, required: false })
+  @ApiQuery({ name: 'sortField', enum: SortField, required: false })
+  @ApiQuery({ name: 'sortOrder', enum: SortOrder, required: false })
+  async findAll(
+    @Query('pageNumber') pageNumber = 1,
+    @Query('pageSize') pageSize = 10,
+    @Query('sortField') sortField = SortField.CREATED_AT,
+    @Query('sortOrder') sortOrder = SortOrder.DESC,
+    @Res() res: Response,
+  ): Promise<Response> {
+    const req = {
+      pageNumber: Number(pageNumber),
+      pageSize: Number(pageSize),
+      sortField,
+      sortOrder,
+      relations: ['customer', 'provider', 'service'],
+    };
+
+    const result = await this.appointmentService.findAll(req);
     return ResponseHandler.responseSuccess(
       res,
-      result,
+      { appointments: result, total: result.length },
       'Fetched all appointments successfully',
     );
   }

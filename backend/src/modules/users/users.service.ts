@@ -10,8 +10,8 @@ export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async all(): Promise<User[]> {
-    const users = await this.usersRepository.findAll();
-    return MapperArray(User, users);
+    // const users = await this.usersRepository.findAll();
+    return MapperArray(User, []);
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {

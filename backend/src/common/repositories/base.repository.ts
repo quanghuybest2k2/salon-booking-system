@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { SortField, SortOrder } from '../enums';
 
 @Injectable()
 export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
@@ -20,17 +21,30 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
   /**
    * Finds all entities with optional filters, pagination, and order.
    */
-  async findAll(options?: {
-    where?: FindOptionsWhere<T>;
-    order?: FindOptionsOrder<T>;
-    skip?: number;
-    take?: number;
-  }): Promise<T[]> {
-    return this.find({
-      where: options?.where,
-      order: options?.order,
-      skip: options?.skip,
-      take: options?.take,
+  async findAll(req: {
+    pageNumber: number;
+    pageSize: number;
+    sortField?: SortField;
+    sortOrder?: SortOrder;
+    where?: () => FindOptionsWhere<T> | FindOptionsWhere<T>[]; // Accepts single or multiple conditions
+    relations?: string[];
+  }): Promise<[T[], number]> {
+    const {
+      pageNumber,
+      pageSize,
+      sortField = SortField.NAME,
+      sortOrder = SortOrder.ASC,
+      where,
+      relations,
+    } = req;
+
+    return await this.findAndCount({
+      skip: (pageNumber - 1) * pageSize,
+      take: pageSize,
+      where: where ? where() : {},
+      withDeleted: false,
+      order: { [sortField]: sortOrder } as FindOptionsOrder<T>,
+      relations,
     });
   }
 
