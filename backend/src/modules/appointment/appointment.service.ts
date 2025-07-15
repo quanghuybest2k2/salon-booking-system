@@ -58,8 +58,8 @@ export class AppointmentService {
     return Mapper(Appointment, created);
   }
 
-  async findAll(): Promise<Appointment[]> {
-    const appointments = await this.appointmentRepo.findAll();
+  async findAll(req): Promise<Appointment[]> {
+    const [appointments] = await this.appointmentRepo.findAll(req);
     return MapperArray(Appointment, appointments);
   }
 
