@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AppointmentService } from './appointment.service';
-import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { CreateAppointmentDto } from './dto/request/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/request/update-appointment.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -73,7 +73,7 @@ export class AppointmentController {
       relations: ['customer', 'provider', 'service'],
     };
 
-    const result = await this.appointmentService.findAll(req);
+    const result = await this.appointmentService.getAppointment(req);
     return ResponseHandler.responseSuccess(
       res,
       { appointments: result, total: result.length },

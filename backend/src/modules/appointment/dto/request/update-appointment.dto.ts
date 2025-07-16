@@ -1,9 +1,9 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateAppointmentDto } from './create-appointment.dto';
+import { BaseAppointmentFields } from './base-appointment-fields.dto';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
+export class UpdateAppointmentDto extends PartialType(BaseAppointmentFields) {
   @ApiPropertyOptional({
     example: '12/07/2025 10:00:00',
     description: 'Thời gian bắt đầu cuộc hẹn (dd/MM/yyyy HH:mm:ss)',
