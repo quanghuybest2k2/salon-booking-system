@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { CreateAppointmentDto } from './dto/request/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/request/update-appointment.dto';
 import { AppointmentRepository } from './appointment.repository';
 import { Appointment } from 'src/entities/appointment/appointment.entity';
 import * as dayjs from 'dayjs';
@@ -15,6 +15,11 @@ dayjs.extend(isSameOrAfter);
 import { ProviderAvailabilityRepository } from '../provider-availability/provider-availability.repository';
 import { getDayOfWeekFromDate } from 'src/utils/day-of-week.utils';
 import { Mapper, MapperArray } from 'src/utils/mapper';
+import { SearchAppointmentDto } from './dto/request/search-appointment.dto';
+import { paginate, PaginatedResult } from 'src/utils/paginate';
+import { LessThanOrEqual, Like, MoreThan } from 'typeorm';
+import { SortField, SortOrder } from 'src/common/enums';
+import { GetAppointmentResponse } from './dto/response/get-appointment-response';
 
 @Injectable()
 export class AppointmentService {
@@ -23,7 +28,7 @@ export class AppointmentService {
     private readonly providerAvailabilityRepository: ProviderAvailabilityRepository,
   ) {}
 
-  async create(dto: CreateAppointmentDto): Promise<Appointment> {
+  async create(dto: CreateAppointmentDto): Promise<GetAppointmentResponse> {
     const start = dayjs(dto.start_time, 'DD/MM/YYYY HH:mm:ss', true);
     const end = dayjs(dto.end_time, 'DD/MM/YYYY HH:mm:ss', true);
 
@@ -58,12 +63,48 @@ export class AppointmentService {
     return Mapper(Appointment, created);
   }
 
-  async findAll(req): Promise<Appointment[]> {
-    const [appointments] = await this.appointmentRepo.findAll(req);
-    return MapperArray(Appointment, appointments);
+  async getAppointment(
+    dto: SearchAppointmentDto,
+  ): Promise<PaginatedResult<GetAppointmentResponse>> {
+    const {
+      customer_id,
+      service_id,
+      provider_id,
+      start_time_from,
+      start_time_to,
+      notes,
+      pageNumber = 1,
+      pageSize = 10,
+    } = dto;
+
+    const where = () => ({
+      ...(customer_id && { customer_id }),
+      ...(service_id && { service_id }),
+      ...(provider_id && { provider_id }),
+      ...(start_time_from && {
+        start_time: MoreThan(new Date(start_time_from)),
+      }),
+      ...(start_time_to && {
+        start_time: LessThanOrEqual(new Date(start_time_to)),
+      }),
+      ...(notes && { notes: Like(`%${notes}%`) }),
+    });
+
+    return paginate<Appointment, GetAppointmentResponse>(
+      () =>
+        this.appointmentRepo.findAll({
+          pageNumber,
+          pageSize,
+          sortField: SortField.CREATED_AT,
+          sortOrder: SortOrder.DESC,
+          where,
+        }),
+      pageSize,
+      pageNumber,
+    );
   }
 
-  async findOne(id: number): Promise<Appointment> {
+  async findOne(id: number): Promise<GetAppointmentResponse> {
     const appointment = await this.appointmentRepo.findById(id, {
       relations: ['customer', 'service', 'provider'],
     });
@@ -75,7 +116,10 @@ export class AppointmentService {
     return Mapper(Appointment, appointment);
   }
 
-  async update(id: number, dto: UpdateAppointmentDto): Promise<Appointment> {
+  async update(
+    id: number,
+    dto: UpdateAppointmentDto,
+  ): Promise<GetAppointmentResponse> {
     const existing = await this.findOne(id);
 
     const start = dto.start_time

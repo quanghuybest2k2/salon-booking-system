@@ -1,7 +1,7 @@
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateAppointmentDto {
+export class BaseAppointmentFields {
   @ApiProperty({ example: 1, description: 'ID của khách hàng' })
   @IsInt()
   customer_id: number;
