@@ -32,7 +32,7 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
     const {
       pageNumber,
       pageSize,
-      sortField = SortField.NAME,
+      sortField = SortField.CREATED_AT,
       sortOrder = SortOrder.ASC,
       where,
       relations,

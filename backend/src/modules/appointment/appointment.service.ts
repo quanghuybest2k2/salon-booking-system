@@ -14,7 +14,7 @@ dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrAfter);
 import { ProviderAvailabilityRepository } from '../provider-availability/provider-availability.repository';
 import { getDayOfWeekFromDate } from 'src/utils/day-of-week.utils';
-import { Mapper, MapperArray } from 'src/utils/mapper';
+import { Mapper } from 'src/utils/mapper';
 import { SearchAppointmentDto } from './dto/request/search-appointment.dto';
 import { paginate, PaginatedResult } from 'src/utils/paginate';
 import { LessThanOrEqual, Like, MoreThan } from 'typeorm';
@@ -75,6 +75,8 @@ export class AppointmentService {
       notes,
       pageNumber = 1,
       pageSize = 10,
+      sortField = SortField.CREATED_AT,
+      sortOrder = SortOrder.ASC,
     } = dto;
 
     const where = () => ({
@@ -90,13 +92,13 @@ export class AppointmentService {
       ...(notes && { notes: Like(`%${notes}%`) }),
     });
 
-    return paginate<Appointment, GetAppointmentResponse>(
-      () =>
-        this.appointmentRepo.findAll({
+    return await paginate<Appointment, GetAppointmentResponse>(
+      async () =>
+        await this.appointmentRepo.findAll({
           pageNumber,
           pageSize,
-          sortField: SortField.CREATED_AT,
-          sortOrder: SortOrder.DESC,
+          sortField,
+          sortOrder,
           where,
         }),
       pageSize,
