@@ -1,5 +1,6 @@
-import { IsOptional, IsString, IsInt } from 'class-validator';
+import { IsOptional, IsString, IsInt, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { SortField, SortOrder } from 'src/common/enums';
 
 export class SearchAppointmentDto {
   @ApiPropertyOptional({ example: 1, description: 'Lọc theo ID khách hàng' })
@@ -50,4 +51,22 @@ export class SearchAppointmentDto {
   @IsOptional()
   @IsInt()
   pageSize?: number;
+
+  @ApiPropertyOptional({
+    enum: SortField,
+    description: 'Trường để sắp xếp',
+    example: SortField.CREATED_AT,
+  })
+  @IsOptional()
+  @IsEnum(SortField)
+  sortField?: SortField;
+
+  @ApiPropertyOptional({
+    enum: SortOrder,
+    description: 'Thứ tự sắp xếp',
+    example: SortOrder.ASC,
+  })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  sortOrder?: SortOrder;
 }

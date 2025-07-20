@@ -58,11 +58,11 @@ export class AppointmentController {
   @ApiQuery({ name: 'pageSize', type: Number, required: false })
   @ApiQuery({ name: 'sortField', enum: SortField, required: false })
   @ApiQuery({ name: 'sortOrder', enum: SortOrder, required: false })
-  async findAll(
+  async getAppointments(
     @Query('pageNumber') pageNumber = 1,
     @Query('pageSize') pageSize = 10,
-    @Query('sortField') sortField = SortField.CREATED_AT,
-    @Query('sortOrder') sortOrder = SortOrder.DESC,
+    @Query('sortField') sortField: SortField = SortField.CREATED_AT,
+    @Query('sortOrder') sortOrder: SortOrder = SortOrder.ASC,
     @Res() res: Response,
   ): Promise<Response> {
     const req = {
@@ -70,13 +70,12 @@ export class AppointmentController {
       pageSize: Number(pageSize),
       sortField,
       sortOrder,
-      relations: ['customer', 'provider', 'service'],
     };
 
     const result = await this.appointmentService.getAppointment(req);
     return ResponseHandler.responseSuccess(
       res,
-      { appointments: result, total: result.length },
+      result,
       'Fetched all appointments successfully',
     );
   }
