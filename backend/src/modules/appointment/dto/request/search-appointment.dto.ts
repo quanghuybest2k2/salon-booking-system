@@ -1,46 +1,55 @@
 import { IsOptional, IsString, IsInt, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { SortField, SortOrder } from 'src/common/enums';
+import { SortField, SortOrder, AppointmentStatus } from 'src/common/enums';
 
 export class SearchAppointmentDto {
-  @ApiPropertyOptional({ example: 1, description: 'Lọc theo ID khách hàng' })
+  @ApiPropertyOptional({ example: 2, description: 'Lọc theo ID khách hàng' })
   @IsOptional()
   @IsInt()
   customer_id?: number;
 
-  @ApiPropertyOptional({ example: 2, description: 'Lọc theo ID dịch vụ' })
+  @ApiPropertyOptional({ example: 1, description: 'Lọc theo ID dịch vụ' })
   @IsOptional()
   @IsInt()
   service_id?: number;
 
-  @ApiPropertyOptional({ example: 3, description: 'Lọc theo ID nhân viên' })
+  @ApiPropertyOptional({ example: 1, description: 'Lọc theo ID nhân viên' })
   @IsOptional()
   @IsInt()
   provider_id?: number;
 
   @ApiPropertyOptional({
-    example: '12/07/2025 00:00:00',
-    description: 'Tìm cuộc hẹn bắt đầu từ thời gian này (start_time >=)',
+    example: AppointmentStatus.CONFIRMED,
+    description: 'Lọc theo trạng thái cuộc hẹn',
+    enum: AppointmentStatus,
   })
   @IsOptional()
-  @IsString()
-  start_time_from?: string;
+  @IsEnum(AppointmentStatus)
+  status?: AppointmentStatus;
 
   @ApiPropertyOptional({
-    example: '12/07/2025 23:59:59',
-    description: 'Tìm cuộc hẹn bắt đầu trước thời gian này (start_time <=)',
-  })
-  @IsOptional()
-  @IsString()
-  start_time_to?: string;
-
-  @ApiPropertyOptional({
-    example: 'Khám tổng quát',
+    example: '',
     description: 'Tìm kiếm theo ghi chú',
   })
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional({
+    example: '12/07/2025 23:59:59',
+    description: 'Thời gian bắt đầu lọc từ (dd/MM/yyyy HH:mm:ss)',
+  })
+  @IsOptional()
+  @IsString()
+  start_time?: string;
+
+  @ApiPropertyOptional({
+    example: '12/07/2025 23:59:59',
+    description: 'Thời gian kết thúc lọc đến (dd/MM/yyyy HH:mm:ss)',
+  })
+  @IsOptional()
+  @IsString()
+  end_time?: string;
 
   @ApiPropertyOptional({ example: 1, description: 'Số trang' })
   @IsOptional()

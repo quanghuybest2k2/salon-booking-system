@@ -17,7 +17,7 @@ import { getDayOfWeekFromDate } from 'src/utils/day-of-week.utils';
 import { Mapper } from 'src/utils/mapper';
 import { SearchAppointmentDto } from './dto/request/search-appointment.dto';
 import { paginate, PaginatedResult } from 'src/utils/paginate';
-import { LessThanOrEqual, Like, MoreThan } from 'typeorm';
+import { LessThanOrEqual, Like, MoreThanOrEqual, Raw } from 'typeorm';
 import { SortField, SortOrder } from 'src/common/enums';
 import { GetAppointmentResponse } from './dto/response/get-appointment-response';
 
@@ -70,26 +70,59 @@ export class AppointmentService {
       customer_id,
       service_id,
       provider_id,
-      start_time_from,
-      start_time_to,
+      status,
       notes,
+      start_time,
+      end_time,
       pageNumber = 1,
       pageSize = 10,
       sortField = SortField.CREATED_AT,
       sortOrder = SortOrder.ASC,
     } = dto;
 
+    let fromTimeParsed: Date | undefined;
+    let toTimeParsed: Date | undefined;
+
+    if (start_time) {
+      const dt = dayjs(start_time, 'DD/MM/YYYY HH:mm:ss', true);
+      if (!dt.isValid())
+        throw new BadRequestException(
+          'start_time không hợp lệ. Định dạng đúng: dd/MM/yyyy HH:mm:ss',
+        );
+      fromTimeParsed = dt.toDate();
+    }
+
+    if (end_time) {
+      const dt = dayjs(end_time, 'DD/MM/YYYY HH:mm:ss', true);
+      if (!dt.isValid())
+        throw new BadRequestException(
+          'end_time không hợp lệ. Định dạng đúng: dd/MM/yyyy HH:mm:ss',
+        );
+      toTimeParsed = dt.toDate();
+    }
+
     const where = () => ({
       ...(customer_id && { customer_id }),
       ...(service_id && { service_id }),
       ...(provider_id && { provider_id }),
-      ...(start_time_from && {
-        start_time: MoreThan(new Date(start_time_from)),
-      }),
-      ...(start_time_to && {
-        start_time: LessThanOrEqual(new Date(start_time_to)),
-      }),
+      ...(status && { status }),
       ...(notes && { notes: Like(`%${notes}%`) }),
+      ...(fromTimeParsed &&
+        toTimeParsed && {
+          start_time: Raw(
+            (alias) =>
+              `${alias} < :toTime AND ${alias.replace('start_time', 'end_time')} > :fromTime`,
+            { fromTime: fromTimeParsed, toTime: toTimeParsed },
+          ),
+        }),
+      ...(!fromTimeParsed &&
+        toTimeParsed && {
+          start_time: LessThanOrEqual(toTimeParsed),
+        }),
+      ...(fromTimeParsed &&
+        !toTimeParsed && {
+          end_time: MoreThanOrEqual(fromTimeParsed),
+        }),
     });
 
     return await paginate<Appointment, GetAppointmentResponse>(

@@ -20,11 +20,11 @@ import {
   ApiParam,
   ApiBody,
   ApiResponse,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { ResponseHandler } from 'src/utils/ResponseHandler';
 import { RoleRequired } from 'src/common/decorators/roles.decorator';
-import { SortField, SortOrder, UserRole } from 'src/common/enums';
+import { SearchAppointmentDto } from './dto/request/search-appointment.dto';
+import { UserRole } from 'src/common/enums';
 
 @ApiTags('appointments')
 @Controller('appointments')
@@ -54,22 +54,20 @@ export class AppointmentController {
   @Get()
   @ApiBearerAuth()
   @RoleRequired([UserRole.ADMIN, UserRole.PROVIDER])
-  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
-  @ApiQuery({ name: 'pageSize', type: Number, required: false })
-  @ApiQuery({ name: 'sortField', enum: SortField, required: false })
-  @ApiQuery({ name: 'sortOrder', enum: SortOrder, required: false })
   async getAppointments(
-    @Query('pageNumber') pageNumber = 1,
-    @Query('pageSize') pageSize = 10,
-    @Query('sortField') sortField: SortField = SortField.CREATED_AT,
-    @Query('sortOrder') sortOrder: SortOrder = SortOrder.ASC,
+    @Query() query: SearchAppointmentDto,
     @Res() res: Response,
   ): Promise<Response> {
     const req = {
-      pageNumber: Number(pageNumber),
-      pageSize: Number(pageSize),
-      sortField,
-      sortOrder,
+      pageNumber: Number(query.pageNumber),
+      pageSize: Number(query.pageSize),
+      sortField: query.sortField,
+      sortOrder: query.sortOrder,
+      customer_id: query.customer_id,
+      service_id: query.service_id,
+      provider_id: query.provider_id,
+      status: query.status,
+      notes: query.notes,
     };
 
     const result = await this.appointmentService.getAppointment(req);
@@ -107,7 +105,7 @@ export class AppointmentController {
   @RoleRequired([UserRole.CUSTOMER, UserRole.PROVIDER])
   @ApiBody({
     type: UpdateAppointmentDto,
-    description: 'Thông tin tạo cuộc hẹn',
+    description: 'Thông tin cập nhật cuộc hẹn',
   })
   async update(
     @Param('id', ParseIntPipe) id: number,
