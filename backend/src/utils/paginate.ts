@@ -1,7 +1,7 @@
 import { MapperArray } from './mapper';
 
 export interface PaginatedResult<T> {
-  data: T[];
+  result: T[];
   pageSize: number;
   pageNumber: number;
   totalPages: number;
@@ -16,8 +16,8 @@ export async function paginate<T, R>(
   pageNumber: number = 1,
   mapper?: (entity: T) => R | Promise<R>,
 ): Promise<PaginatedResult<R>> {
-  // Fetch data if repositoryQuery is a function, otherwise use provided array
-  const [data, totalCount] = Array.isArray(repositoryQuery)
+  // Fetch result if repositoryQuery is a function, otherwise use provided array
+  const [result, totalCount] = Array.isArray(repositoryQuery)
     ? repositoryQuery
     : await repositoryQuery();
 
@@ -25,16 +25,16 @@ export async function paginate<T, R>(
   const hasPreviousPage = pageNumber > 1;
   const hasNextPage = pageNumber < totalPages;
 
-  // Use MapperArray if no custom mapper is provided, otherwise map data with provided mapper
+  // Use MapperArray if no custom mapper is provided, otherwise map result with provided mapper
   const mappedData = mapper
-    ? await Promise.all(data.map(mapper))
+    ? await Promise.all(result.map(mapper))
     : (MapperArray(
-        data[0]?.constructor as new () => T,
-        data as object[],
+        result[0]?.constructor as new () => T,
+        result as object[],
       ) as unknown as R[]);
 
   return {
-    data: mappedData,
+    result: mappedData,
     pageSize: pageSize > totalCount && pageNumber === 1 ? totalCount : pageSize,
     pageNumber,
     totalPages,
